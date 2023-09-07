@@ -17,8 +17,8 @@ CLUSTERER = Clusterer()
 
 def white_percent(img):
     # calculated percent of white pixels in the grayscale image
-    w,h = img.shape
-    total_pixels = w * h
+    w, h = img.shape
+    total_pixels = w*h
 
     # counts the numbers of white pixels
     white_pixels = 0
@@ -38,7 +38,7 @@ def fix_image(img):
     image_bw = cv2.threshold(img, 50, 255, cv2.THRESH_BINARY)[1]
 
     # making mask of a circle
-    black = np.zeros((250, 250))# our images are 250 * 250 when we are transforming them
+    black = np.zeros((250,250))# our images are 250 * 250 when we are transforming them
     # circle center is (125, 125), radius is 110, color is white
     # we divide by 255 to get image of 1s and 0s. Where a 0s is seen, our image will become black
     # make our white outside black and keep the white digit as it is inside the circle
@@ -69,8 +69,8 @@ for imagePath in image_paths:
     image = CONTRASTER.apply(image, 0, 60)
 
     #blurring
-    image = cv2.medianBlur(image, 15)
-    image = cv2.GaussianBlur(image, (3,3), cv2.BORDER_DEFAULT)
+    image = cv2.medianBlur(image,15)
+    image = cv2.GaussianBlur(image,(3,3),cv2.BORDER_DEFAULT)
 
     #clustering
     image = CLUSTERER.apply(image, 5)
@@ -78,6 +78,7 @@ for imagePath in image_paths:
     # grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+    # 0.10 - 0.28 should be white
     threshold = 0
 
     percent_white = white_percent(cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)[1])
@@ -85,19 +86,21 @@ for imagePath in image_paths:
         threshold += 10
         percent_white = white_percent(cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)[1])
 
+     # means that image was not correctly filtered
     if threshold > 255:
         image_bw = fix_image(gray)
     else:
         image_bw = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)[1]
 
+
     # blurring to help remove noise
-    image_bw = cv2.medianBlur(image_bw, 7)
-    image_bw = cv2.GaussianBlur(image_bw, (31,31), 0)
+    image_bw = cv2.medianBlur(image_bw,7)
+    image_bw = cv2.GaussianBlur(image_bw,(31,31),0)
 
     # convert back to black and white after the blurring
     image_bw = cv2.threshold(image_bw, 150, 255, cv2.THRESH_BINARY)[1]
 
-     # apply morphology close
+    # apply morphology close
     kernel = np.ones((9,9), np.uint8)
     image_bw = cv2.morphologyEx(image_bw, cv2.MORPH_CLOSE, kernel)
 
@@ -105,7 +108,7 @@ for imagePath in image_paths:
     kernel = np.ones((9,9), np.uint8)
     image_bw = cv2.morphologyEx(image_bw, cv2.MORPH_CLOSE, kernel)
 
-    # erosion (to make it thinner)
+    # erosion
     kernel = np.ones((7,7), np.uint8)
     image_bw = cv2.erode(image_bw, kernel, iterations=1)
 

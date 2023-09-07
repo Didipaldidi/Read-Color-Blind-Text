@@ -49,7 +49,9 @@ def fix_image(img):
 
 
 #used later as inputs to the neural network model
-proccessed_images = []
+num_images = 54
+i = 0
+processed_images = []
 image_labels = []
 
 #prepare image paths and randomizes them
@@ -82,10 +84,65 @@ for imagePath in image_paths:
         threshold += 10
         percent_white = white_percent(cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)[1])
 
+    if threshold > 255:
+        image_bw = fix_image(gray)
+    else:
+        image_bw = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)[1]
+
+    # blurring to help remove noise
+    image_bw = cv2.medianBlue(image_bw, 7)
+    image_bw = cv2.GaussianBlur(image_bw, (31,31), 0)
+
+    # convert back to black and white after the blurring
+    image_bw = cv2.threshold(image_bw, 150, 255, cv2.THRESH_BINARY)[1]
+
+    # apply morphology close
+    kernel = np.ones((9,9), np.uint8)
+    image_b2 = cv2.morphologyEX(image_bw, cv2.MORPH_CLOSE, kernel)
+
+    # apply morphology open
+    kernel = np.ones((9,9), np.uint8)
+    image_bw = cv2.morphologyEx(image_bw, cv2.MORPH_OPEN, kernel)
+
+    # erosion (to make it thinner)
+    kernel = np.ones((7,7), np.uint8)
+    image_bw = cv2.erode(image_bw, kernel, iterations=1)
+
+    # skeletonizing
+    image_bw = cv2.threshold(image_bw,0,1,cv2.THRESH_BINARY)[1]
+    image_bw = (255*skeletonize(image_bw)).astype(np.uint8)
+
+    # dilating
+    kernel = np.ones((21,21), np.uint8)
+    image_bw = cv2.morphologyEx(image_bw, cv2.MORPH_DILATE, kernel)
+
+    # append our finished image to the list (resize to 28x28 because our neural network needs those dimensions)
+    processed_images.append(imutils.resize(image_bw, height=28))
+
+    # extract the correct label from the path of the file (because images are in folders by digit)
+    image_labels.append(int(os.path.split(imagePath)[0][-1]))
+
     #show the image
-    cv2.imshow("Gray", gray)
-    cv2.waitKey()
-    cv2.DestroyAllWindows()
+    # cv2.imshow("Gray", gray)
+    # cv2.waitKey()
+    # cv2.DestroyAllWindows()
+
+    i += 1
+    print(i)
+    if i >= num_images:
+        break
+
+# prediction
+model = tf.keras.models.load_model("mnist.h5")
+
+processed_images = np.array(processed_images)
+processed_images = processed_images.reshape(processed_images.shape[0], 28, 28, 1)
+processed_images=tf.cast(processed_images, tf.float32)
+
+image_labels = np.array(image_labels)
+
+preds = np.argmax(model.predict(processed_images), axis=1)
+print(classification_report(image_labels, preds))
 
 
 

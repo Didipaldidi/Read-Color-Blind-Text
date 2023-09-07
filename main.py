@@ -15,6 +15,20 @@ from sklearn.metrics import classification_report
 CONTRASTER = ContrassBrightness()
 CLUSTERER = Clusterer()
 
+def white_percent(img):
+    # calculated percent of white pixels in the grayscale image
+    w,h = img.shape
+    total_pixels = w * h
+
+    # counts the numbers of white pixels
+    white_pixels = 0
+
+    for r in img:
+        for c in r:
+            if c == 255:
+                white_pixels += 1
+    return white_pixels/total_pixels
+
 #used later as inputs to the neural network model
 proccessed_images = []
 image_labels = []
@@ -46,3 +60,6 @@ for imagePath in image_paths:
     cv2.imshow("Gray", gray)
     cv2.waitKey()
     cv2.DestroyAllWindows()
+
+
+

@@ -29,6 +29,7 @@ def white_percent(img):
                 white_pixels += 1
     return white_pixels/total_pixels
 
+# fixes image where number is darker than background in grayscale
 def fix_image(img):
     # inversion
     img = cv2.bitwise_not(img)
@@ -90,19 +91,19 @@ for imagePath in image_paths:
         image_bw = cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)[1]
 
     # blurring to help remove noise
-    image_bw = cv2.medianBlue(image_bw, 7)
+    image_bw = cv2.medianBlur(image_bw, 7)
     image_bw = cv2.GaussianBlur(image_bw, (31,31), 0)
 
     # convert back to black and white after the blurring
     image_bw = cv2.threshold(image_bw, 150, 255, cv2.THRESH_BINARY)[1]
 
-    # apply morphology close
+     # apply morphology close
     kernel = np.ones((9,9), np.uint8)
-    image_b2 = cv2.morphologyEX(image_bw, cv2.MORPH_CLOSE, kernel)
+    image_bw = cv2.morphologyEx(image_bw, cv2.MORPH_CLOSE, kernel)
 
     # apply morphology open
     kernel = np.ones((9,9), np.uint8)
-    image_bw = cv2.morphologyEx(image_bw, cv2.MORPH_OPEN, kernel)
+    image_bw = cv2.morphologyEx(image_bw, cv2.MORPH_CLOSE, kernel)
 
     # erosion (to make it thinner)
     kernel = np.ones((7,7), np.uint8)

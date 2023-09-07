@@ -29,6 +29,25 @@ def white_percent(img):
                 white_pixels += 1
     return white_pixels/total_pixels
 
+def fix_image(img):
+    # inversion
+    img = cv2.bitwise_not(img)
+
+    # thresholding
+    image_bw = cv2.threshold(img, 50, 255, cv2.THRESH_BINARY)[1]
+
+    # making mask of a circle
+    black = np.zeros((250, 250))# our images are 250 * 250 when we are transforming them
+    # circle center is (125, 125), radius is 110, color is white
+    # we divide by 255 to get image of 1s and 0s. Where a 0s is seen, our image will become black
+    # make our white outside black and keep the white digit as it is inside the circle
+    circle_mask = cv2.circle(black, (125, 125), 110, (255, 255, 255), -1) / 255.0
+
+    # applying mask to make everything outside the circle black
+    edited_image = image_bw * (circle_mask.astype(image_bw.dtype))
+    return edited_image
+
+
 #used later as inputs to the neural network model
 proccessed_images = []
 image_labels = []
@@ -56,10 +75,21 @@ for imagePath in image_paths:
     # grayscale
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
+    threshold = 0
+
+    percent_white = white_percent(cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)[1])
+    while (not (percent_white > 0.10 and percent_white < 0.28)) and threshold <= 255:
+        threshold += 10
+        percent_white = white_percent(cv2.threshold(gray, threshold, 255, cv2.THRESH_BINARY)[1])
+
     #show the image
     cv2.imshow("Gray", gray)
     cv2.waitKey()
     cv2.DestroyAllWindows()
+
+
+
+
 
 
 

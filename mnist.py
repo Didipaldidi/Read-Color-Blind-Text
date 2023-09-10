@@ -23,14 +23,11 @@ model = tf.keras.models.Sequential([
 
     ])
 
-model.compile(optimizer='adam', 
-              loss='sparse_categorical_crossentropy', 
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
               metrics=['accuracy'])
-# training for 10 epochs
 model.fit(x=x_train,y=y_train, epochs=10)
 
-# testing our accuracy
 model.evaluate(x_test, y_test, verbose=1)
 
-# saving the model
 model.save("mnist.h5")

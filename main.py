@@ -5,14 +5,14 @@ from imutils import paths
 import numpy as np
 import random
 
-from ContrastBrightness import ContrassBrightness
+from ContrastBrightness import ContrastBrightness
 from Clusterer import Clusterer
 
 import os
 from skimage.morphology import skeletonize
 from sklearn.metrics import classification_report
 
-CONTRASTER = ContrassBrightness()
+CONTRASTER = ContrastBrightness()
 CLUSTERER = Clusterer()
 
 def white_percent(img):
@@ -136,16 +136,20 @@ for imagePath in image_paths:
     if i >= num_images:
         break
 
-# prediction
+# model loading
 model = tf.keras.models.load_model("mnist.h5")
 
+# reshaping our images to correct dimensions
 processed_images = np.array(processed_images)
 processed_images = processed_images.reshape(processed_images.shape[0], 28, 28, 1)
 processed_images=tf.cast(processed_images, tf.float32)
 
 image_labels = np.array(image_labels)
 
+# making predictions and using np.argmax to convert the long vector output into a digit output
 preds = np.argmax(model.predict(processed_images), axis=1)
+
+# printing accuracy and other information
 print(classification_report(image_labels, preds))
 
 

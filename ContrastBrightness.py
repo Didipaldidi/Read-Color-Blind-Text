@@ -1,8 +1,7 @@
 import cv2
-
-class ContrassBrightness:
-    def apply(self, input_img, brightness = 0, constast = 0):
-        # transform an image using custom brightness and contrast levels
+class ContrastBrightness:
+    def apply(self, input_img, brightness = 0, contrast = 0):
+        # transforms an image using custom brightness and contrast levels
         if brightness != 0:
             if brightness > 0:
                 shadow = brightness
@@ -10,19 +9,18 @@ class ContrassBrightness:
             else:
                 shadow = 0
                 highlight = 255 + brightness
-
             alpha_b = (highlight - shadow)/255
             gamma_b = shadow
-
+    
             buf = cv2.addWeighted(input_img, alpha_b, input_img, 0, gamma_b)
         else:
             buf = input_img.copy()
-
-        if constast != 0:
-            f = 131 * (constast + 127)/(127 * (131-constast))
+    
+        if contrast != 0:
+            f = 131*(contrast + 127)/(127*(131-contrast))
             alpha_c = f
-            gamma_c = 127 * (1-f)
-
+            gamma_c = 127*(1-f)
+    
             buf = cv2.addWeighted(buf, alpha_c, buf, 0, gamma_c)
-
+    
         return buf

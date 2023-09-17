@@ -10,8 +10,6 @@ This project uses machine learning to detect color blindness charts. It includes
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
 - [Usage](#usage)
-- [Contributing](#contributing)
-- [License](#license)
 - [Acknowledgements](#acknowledgements)
 
 ## About the Project
@@ -54,3 +52,17 @@ To get started with this project, follow these steps:
    ```
    pip install -r requirements.txt
    ```
+
+### Usage
+
+1. Place your color blindness chart images in the charts/ordered directory.
+
+2. Run the script to preprocess and classify the images:
+   ```
+   python main.py
+   ```
+3. View the classification report to evaluate the model's performance.
+
+### Acknowledgements
+
+Inspiration: GitHub - msolonko/colorblindness_classification

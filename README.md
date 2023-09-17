@@ -50,3 +50,7 @@ To get started with this project, follow these steps:
    ```sh
    git clone https://github.com/yourusername/your-repo.git
    ```
+2. Install the required Python packages:
+   ```
+   pip install -r requirements.txt
+   ```
